@@ -20,21 +20,61 @@ import ReactDOM from "react-dom";
 import serializeForm from "form-serialize";
 
 class CheckoutForm extends React.Component {
+  constructor() {
+    super();
+    const formState = window.localStorage.formState;
+  if(formState) { 
+    this.state = JSON.stringify(formState);
+  } else { 
+  this.state = {
+      billName: '',
+      billState: '',
+      shippingName: '',
+      shippingState: '',
+      isChecked: false
+    }
+  }
+
+  }
+
+  
+  handleSubmit = event => {
+    event.preventDefault();
+    const form = event.target;
+    const values = serializeForm(form, { hash: true });
+    console.log(values);
+  }
+
+  setSameAsBilling = (e) => {
+    this.setState({
+      isChecked: e.target.checked
+    })
+    console.log('hey')
+  }
+
+
+
+  componentDidMount() {
+    window.addEventListener('beforeunload', () => {
+      window.localStorage.formState = JSON.stringify(this.state);
+    });
+  }
+
   render() {
     return (
       <div>
         <h1>Checkout</h1>
-        <form>
+        <form onSubmit={this.handleSubmit}>
           <fieldset>
             <legend>Billing Address</legend>
             <p>
               <label>
-                Billing Name: <input type="text" />
+                Billing Name: <input type="text" name="billName" defaultValue='' onChange={e => this.setState({ billName: e.target.value })} />
               </label>
             </p>
             <p>
               <label>
-                Billing State: <input type="text" size="2" />
+                Billing State: <input type="text" size="2" name='billState' defaultValue='' onChange={e => this.setState({ billState: e.target.value })} />
               </label>
             </p>
           </fieldset>
@@ -43,23 +83,23 @@ class CheckoutForm extends React.Component {
 
           <fieldset>
             <label>
-              <input type="checkbox" /> Same as billing
+              <input type="checkbox" defaultChecked={this.state.isChecked} onChange={(e) => this.setSameAsBilling(e)} /> Same as billing
             </label>
             <legend>Shipping Address</legend>
             <p>
               <label>
-                Shipping Name: <input type="text" />
+                Shipping Name: <input type="text" name='shippingName' defaultValue={this.state.isChecked ? this.state.billName : this.state.shippingName} />
               </label>
             </p>
             <p>
               <label>
-                Shipping State: <input type="text" size="2" />
+                Shipping State: <input type="text" size="2" name='shippingState' defaultValue={this.state.isChecked ? this.state.billState : this.state.shippingState} />
               </label>
             </p>
           </fieldset>
 
           <p>
-            <button>Submit</button>
+            <button >Submit</button>
           </p>
         </form>
       </div>

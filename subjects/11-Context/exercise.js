@@ -19,26 +19,58 @@ import React from "react";
 import ReactDOM from "react-dom";
 import PropTypes from "prop-types";
 
+
+const MyForm = React.createContext();
 class Form extends React.Component {
+
+  handleSubmit = () => {
+    if (this.props.onSubmit) {
+      this.props.onSubmit();
+    }
+  }
+
   render() {
-    return <div>{this.props.children}</div>;
+    return (
+      <MyForm.Provider
+        value={{ submit: this.handleSubmit }}
+      >
+        <div>{this.props.children}</div>
+      </MyForm.Provider>
+    )
   }
 }
 
 class SubmitButton extends React.Component {
   render() {
-    return <button>{this.props.children}</button>;
+    return (
+      <MyForm.Consumer>
+        {context => (
+          <button onClick={context.submit}>
+            {this.props.children}
+          </button>
+        )}
+      </MyForm.Consumer>
+    );
   }
 }
 
 class TextInput extends React.Component {
   render() {
     return (
-      <input
-        type="text"
-        name={this.props.name}
-        placeholder={this.props.placeholder}
-      />
+      <MyForm.Consumer>
+        {context => (
+          <input
+            type="text"
+            name={this.props.name}
+            placeholder={this.props.placeholder}
+            onKeyDown={event => {
+              if (event.key === "Enter") {
+                context.submit();
+              }
+            }}
+          />
+        )}
+      </MyForm.Consumer>
     );
   }
 }
@@ -57,7 +89,7 @@ class App extends React.Component {
 
         <Form onSubmit={this.handleSubmit}>
           <p>
-            <TextInput name="firstName" placeholder="First Name" />{" "}
+            <TextInput name="firstName" placeholder="First Name" />
             <TextInput name="lastName" placeholder="Last Name" />
           </p>
           <p>

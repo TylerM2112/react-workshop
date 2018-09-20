@@ -25,9 +25,21 @@ class RadioGroup extends React.Component {
   static propTypes = {
     defaultValue: PropTypes.string
   };
+  state = {
+    value: this.props.defaultValue
+  };
+
+  select(value) { 
+    this.setState({ value }, () => { this.props.onClick(this.state.value) })
+  }
+
 
   render() {
-    return <div>{this.props.children}</div>;
+    const children = React.Children.map(this.props.children, child => React.cloneElement(child, {
+      _isSelected: child.props.value === this.state.value,
+      onClick: () => this.select(child.props.value)
+    }));
+    return <div>{children}</div>
   }
 }
 
@@ -38,8 +50,8 @@ class RadioOption extends React.Component {
 
   render() {
     return (
-      <div>
-        <RadioIcon isSelected={false} /> {this.props.children}
+      <div onClick={this.props.onClick}>
+        <RadioIcon _isSelected={this.props._isSelected} /> {this.props.children}
       </div>
     );
   }
@@ -47,7 +59,7 @@ class RadioOption extends React.Component {
 
 class RadioIcon extends React.Component {
   static propTypes = {
-    isSelected: PropTypes.bool.isRequired
+    _isSelected: PropTypes.bool.isRequired
   };
 
   render() {
@@ -56,12 +68,12 @@ class RadioIcon extends React.Component {
         style={{
           borderColor: "#ccc",
           borderWidth: 3,
-          borderStyle: this.props.isSelected ? "inset" : "outset",
+          borderStyle: this.props._isSelected ? "inset" : "outset",
           height: 16,
           width: 16,
           display: "inline-block",
           cursor: "pointer",
-          background: this.props.isSelected ? "rgba(0, 0, 0, 0.05)" : ""
+          background: this.props._isSelected ? "rgba(0, 0, 0, 0.05)" : ""
         }}
       />
     );
@@ -69,12 +81,15 @@ class RadioIcon extends React.Component {
 }
 
 class App extends React.Component {
+  state = {
+    radioValue: 'fm'
+  }
   render() {
     return (
       <div>
         <h1>♬ It's about time that we all turned off the radio ♫</h1>
 
-        <RadioGroup defaultValue="fm">
+        <RadioGroup defaultValue={this.state.radioValue} onClick={radioValue => { this.setState({ radioValue })}}>
           <RadioOption value="am">AM</RadioOption>
           <RadioOption value="fm">FM</RadioOption>
           <RadioOption value="tape">Tape</RadioOption>

@@ -29,10 +29,31 @@ const DATA = {
   ]
 };
 
-function Menu() {
-  return <div>Open the console, you have failing tests.</div>;
+// filterFood = (type) => { 
+//   return props.data.item.filter(item => item.type === type)
+// }
+
+function Menu(props) {
+  const items = props.data.items
+    .filter(item => item.type === 'mexican')
+    .sort(sortBy('name'))
+    .map(item => <li key={item.id}>{item.name}</li>);
+  
+  return (
+    <React.Fragment>
+      <h1>{props.data.title}</h1>
+      <select>
+        <option value="mexican">Mexican</option>
+        <option value="english">English</option>
+      </select>
+      <button>Sort it out!</button>
+    <ul>
+        {items}
+      </ul>
+      </React.Fragment>
+  );
 }
 
-ReactDOM.render(<Menu />, document.getElementById("app"));
+ReactDOM.render(<Menu data={DATA}/>, document.getElementById("app"));
 
 require("./tests").run();

@@ -11,7 +11,7 @@ class App extends React.Component {
   componentDidMount() {
     // TODO: Move this call into the request handler on the server.
     fetchContacts((error, contacts) => {
-      this.setState({ contacts });
+      this.setState({ contacts, error });
     });
   }
 

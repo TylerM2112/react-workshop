@@ -3,12 +3,20 @@ import ReactDOM from "react-dom";
 import serializeForm from "form-serialize";
 
 class App extends React.Component {
+  handleSubmit = event => { 
+    event.preventDefault();
+    const form = event.target;
+    const values = serializeForm(form, { hash: true });
+    console.log(values);
+  }
   render() {
     return (
       <div>
         <h1>Forms</h1>
-        <form>
-          <input type="text" />
+        <form onSubmit={this.handleSubmit}>
+          <input type="text" name="firstName" defaultValue="Tyler" />
+          <input type="text" name="lastName" defaultValue="Miller" />
+          <button>Submit</button>
         </form>
       </div>
     );

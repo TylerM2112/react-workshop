@@ -15,9 +15,58 @@ import ReactDOM from "react-dom";
 import PropTypes from "prop-types";
 
 function withMouse(Component) {
-  return Component;
+  return class extends React.Component {
+    state = { x: 0, y: 0 };
+
+    handleMouse = event => {
+      this.setState({
+        x: event.clientX,
+        y: event.clientY,
+      });
+    };
+
+    render() {
+      return (
+        <div onMouseMove={this.handleMouse}>
+          <Component {...this.props} mouse={this.state} />
+        </div>
+      );
+    }
+  };
 }
 
+function withCat(Component) {
+  return class extends React.Component {
+    state = { top: 0, left: 0 };
+
+    componentDidUpdate(prevProps) {
+      const { mouse } = this.props;
+
+      if (
+        mouse.x !== prevProps.mouse.x ||
+        mouse.y !== prevProps.mouse.y
+      ) {
+        this.setState({
+          top: mouse.y - 3,
+          left: mouse.x - 3
+        });
+      }
+    }
+
+    render() {
+      return (
+        <div>
+          <div
+            ref={node => (this.node = node)}
+            className="cat"
+            style={this.state}
+          />
+          <Component {...this.props} />
+        </div>
+      );
+    }
+  };
+}
 class App extends React.Component {
   static propTypes = {
     mouse: PropTypes.shape({
@@ -28,7 +77,7 @@ class App extends React.Component {
 
   render() {
     const { mouse } = this.props;
-
+    
     return (
       <div className="container">
         {mouse ? (
@@ -43,6 +92,6 @@ class App extends React.Component {
   }
 }
 
-const AppWithMouse = withMouse(App);
+const AppWithMouse = withMouse(withCat(App));
 
 ReactDOM.render(<AppWithMouse />, document.getElementById("app"));
